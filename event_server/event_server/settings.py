@@ -7,9 +7,18 @@ from django.db.utils import OperationalError
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-ot0bqet2b62$mu(dfb0ogryiqnk@t^#u*+7yb25w4_xrv%v62s'
+# Initialize environ - MUST be at the top before using env()
+env = environ.Env()
+environ.Env.read_env()
 
-DEBUG = True
+# Security & Configuration
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+DEBUG = env.bool('DEBUG', default=True)
+
+# Stripe Configuration
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+
 
 ALLOWED_HOSTS = []
 
@@ -20,8 +29,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #Custom Apps
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
+    'payments.apps.PaymentsConfig', 
+    #Third Party Apps
     'corsheaders',
     'rest_framework'
 ]
@@ -29,8 +41,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # MOVED: Must be before CommonMiddleware
     'django.middleware.common.CommonMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -54,24 +66,19 @@ TEMPLATES = [
     },
 ]
 
-env= environ.Env()
-environ.Env.read_env()
 
 CORS_ALLOWED_ORIGINS = [
-    env.get_value("FRONTEND_URL")
+    env("FRONTEND_URL", default="http://localhost:5173"),
 ]
+
 
 APPEND_SLASH = False
 
 WSGI_APPLICATION = 'event_server.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-
 DATABASES = {
-    'default':env.db(),
+    'default': env.db(),
 }
 
 def test_database_connection():
@@ -105,11 +112,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -120,6 +124,7 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
