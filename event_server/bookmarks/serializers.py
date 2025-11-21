@@ -4,4 +4,5 @@ from .models import Bookmark
 class BookmarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
-        fields = '__all__'
+        fields = ['id', 'event', 'user']   
+        read_only_fields = ['user'] 

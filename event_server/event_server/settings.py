@@ -25,7 +25,8 @@ INSTALLED_APPS = [
     'bookmarks.apps.BookmarksConfig',
     'tickets.apps.TicketsConfig', 
     'corsheaders',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

@@ -1,7 +1,7 @@
-from django.urls import path
-from .views import BookTicketView, MyTicketsView
+from rest_framework.routers import DefaultRouter
+from .views import TicketViewSet
 
-urlpatterns = [
-    path("book/", BookTicketView.as_view(), name="book-ticket"),
-    path("booked/", MyTicketsView.as_view(), name="my-tickets"),
-]
+router = DefaultRouter()
+router.register(r'', TicketViewSet)
+
+urlpatterns = router.urls
