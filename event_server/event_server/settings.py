@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
+    'bookmarks.apps.BookmarksConfig',
+    'tickets.apps.TicketsConfig', 
     'corsheaders',
     'rest_framework'
 ]
@@ -54,12 +56,13 @@ TEMPLATES = [
     },
 ]
 
-env= environ.Env()
-environ.Env.read_env()
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 CORS_ALLOWED_ORIGINS = [
-    env.get_value("FRONTEND_URL")
+    env("FRONTEND_URL")
 ]
+
 
 APPEND_SLASH = False
 
