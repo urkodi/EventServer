@@ -15,4 +15,29 @@ class EventUsers(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     rank = models.PositiveSmallIntegerField(default= 0)
 
+class Links(models.Model):
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    link = models.URLField(max_length=500)
+
+class Categories(models.Model):
+    name = models.CharField(max_length=64)
+
+class EventCategories(models.Model):
+     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+     categories_id = models.ForeignKey(Categories, on_delete=models.CASCADE)
+
+class Tags(models.Model):
+    name = models.CharField(max_length=128)
+
+class Forum(models.Model):
+    owner_id = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    body = models.TextField(max_length= 2048, default= None, blank= True, null= True)
+    timestamp = models.DateTimeField(default= None, blank= True, null= True)
+
+class ForumComments(models.Model):
+    forum_id = models.ForeignKey('forum.Forum', on_delete=models.CASCADE)
+    owner_id = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    body = models.TextField(max_length= 2048, default= None, blank= True, null= True)
+    timestamp = models.DateTimeField(default= None, blank= True, null= True)
 
