@@ -11,24 +11,23 @@ from rest_framework.decorators import (
 from rest_framework.permissions import IsAuthenticated
 
 from users.authentication import JWTCookieAuthentication
-
 from .models import Event
 from .serializers import EventSerializer
-
-# Create your views here.
-
 
 @api_view(["POST"])
 @authentication_classes([JWTCookieAuthentication])
 @permission_classes([IsAuthenticated])
 def create_event(request):
-    print(request.headers)
+    owner_id = request.user.id
+
+    if owner_id is None:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
     serializer = EventSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save()
+        serializer.save(owner_id = owner_id)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
