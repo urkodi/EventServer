@@ -97,3 +97,19 @@ def login_user(request):
         return Response(
             "Incorrect Email or Password", status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+@api_view(["GET"])
+def get_user_by_id(request):
+    user_id = request.query_params.get("user")
+
+    if not user_id:
+        return Response({"error": "Missing 'user' query parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserSerializer(user, context={"request": request})
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -27,3 +27,4 @@ def list_events_by_owner(request):
     serializer = EventSerializer(events, many=True, context={"request": request})
     return Response(serializer.data)
 
+

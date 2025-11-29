@@ -43,3 +43,4 @@ class ForumComments(models.Model):
     body = models.TextField(max_length= 2048, default= None, blank= True, null= True)
     timestamp = models.DateTimeField(default= None, blank= True, null= True)
 
+

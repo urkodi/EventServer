@@ -19,3 +19,4 @@ class EventUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventUsers
         fields = '__all__'
+        
