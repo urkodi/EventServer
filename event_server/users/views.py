@@ -113,3 +113,30 @@ def get_user_by_id(request):
 
     serializer = UserSerializer(user, context={"request": request})
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["PUT"])
+def update_user(request):
+    try:
+        user_id = request.query_params.get("user")
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    serializer = UserSerializer(
+        user,
+        data=request.data,
+        partial=True,
+        context={"request": request}
+    )
+
+    if serializer.is_valid():
+        serializer.save()
+
+        # Handle file upload manually
+        if "profilePicture" in request.FILES:
+            user.pfp_path = request.FILES["profilePicture"]
+            user.save()
+
+        return Response(serializer.data, status=200)
+
+    return Response(serializer.errors, status=400)
