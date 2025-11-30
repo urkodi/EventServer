@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # Our Application Apps
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
+    'reviews.apps.ReviewsConfig',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt'
