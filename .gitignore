@@ -1,3 +1,5 @@
 venv/
 **/*.env
 **/__pycache__/
+event_server/media/event_images/*
+event_server/media/pfp_images/*

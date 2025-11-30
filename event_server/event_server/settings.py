@@ -8,13 +8,14 @@ from django.db.utils import OperationalError
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environ - MUST be at the top before using env()
+#load environment variables first
 env = environ.Env()
-environ.Env.read_env()
+env.read_env(str(BASE_DIR / '.env'))
 
 # Security & Configuration
-SECRET_KEY = env('DJANGO_SECRET_KEY')
-DEBUG = env.bool('DEBUG', default=True)
+SECRET_KEY = 'django-insecure-ot0bqet2b62$mu(dfb0ogryiqnk@t^#u*+7yb25w4_xrv%v62s'
+
+DEBUG = True
 
 # Stripe Configuration
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
@@ -77,7 +78,11 @@ APPEND_SLASH = False
 
 WSGI_APPLICATION = 'event_server.wsgi.application'
 
+
 # Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+
 DATABASES = {
     'default': env.db(),
 }
@@ -169,3 +174,6 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
