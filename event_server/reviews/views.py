@@ -23,7 +23,14 @@ def create_review(request):
         user = User.objects.get(id=user_id)
         event = Event.objects.get(id=event_id)
 
-        serializer = ReviewSerializer(data=request.data)
+        # Build new request data including event info
+        updated_data = request.data.copy()
+        updated_data["event_title"] = event.title
+        updated_data["event_image"] = (
+            event.image_path.url if event.image_path else None
+        )
+
+        serializer = ReviewSerializer(data=updated_data)
 
         if serializer.is_valid():
             serializer.save(user=user, event=event)
@@ -33,12 +40,14 @@ def create_review(request):
 
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+
     except Event.DoesNotExist:
         return Response({"error": "Event not found"}, status=404)
 
 
+
 # ---------------------------------------------
-# 2. Get ALL reviews (GET)
+# 2. Get ALL reviews
 # ---------------------------------------------
 @api_view(["GET"])
 def get_all_reviews(request):
@@ -48,7 +57,7 @@ def get_all_reviews(request):
 
 
 # ---------------------------------------------
-# 3. Get all reviews for a specific USER (GET)
+# 3. Get reviews for a specific USER
 # ---------------------------------------------
 @api_view(["GET"])
 def get_reviews_by_user(request):
