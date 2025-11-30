@@ -24,7 +24,7 @@ def add_cookies(response, user):
         secure=True,         # REQUIRED for SameSite=None
         samesite="None",     # REQUIRED for cross-origin
         path="/",            # REQUIRED so everything gets the cookie
-        domain="localhost",
+        domain="127.0.0.1",
         max_age=86400
     )
 
@@ -35,7 +35,7 @@ def add_cookies(response, user):
         secure=True,
         samesite="None",
         path="/",
-        domain="localhost",
+        domain="127.0.0.1",
         max_age=86400
     )
 
