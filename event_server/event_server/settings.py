@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
     'reviews.apps.ReviewsConfig',
+    'posts.apps.PostsConfig',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt'
