@@ -1,6 +1,6 @@
 from django.db import models
 
-class Event(models.Model):
+class Event(models.Model): 
     owner_id = models.ForeignKey('users.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     description = models.TextField(max_length= 2048, default= None, blank= True, null= True)

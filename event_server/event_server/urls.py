@@ -16,8 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import test_error
+
 
 urlpatterns = [
     path("users/", include("users.urls")),
     path('admin/', admin.site.urls),
+    path('test-error/', test_error),
 ]
+
+
+handler404 = "event_server.views.custom_404"
+handler500 = "event_server.views.custom_500"
+handler503 = "event_server.views.custom_503"
