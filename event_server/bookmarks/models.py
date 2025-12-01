@@ -1,14 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from events.models import Event
 
 class Bookmark(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event_id = models.IntegerField()  
-    title = models.CharField(max_length=200)
-    date = models.CharField(max_length=100)
-    location = models.CharField(max_length=200)
-    image = models.URLField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmarks")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bookmarked_by", null=True, blank=True)
     saved_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ("user", "event")
+
     def __str__(self):
-        return f"{self.title} bookmarked by {self.user.username}"
+        return f"{self.user} bookmarked {self.event}"

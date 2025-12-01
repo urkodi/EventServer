@@ -7,6 +7,10 @@ class User(models.Model):
     password_hash = models.CharField()
     pfp_path = models.CharField(default= None, blank= True, null= True)
 
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+
     def __str__ (self):
         return f"{self.first_name} {self.last_name}"
     
