@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
     'payments.apps.PaymentsConfig', 
+    'reviews.apps.ReviewsConfig',
+    'posts.apps.PostsConfig',
     #Third Party Apps
     'corsheaders',
     'rest_framework',
