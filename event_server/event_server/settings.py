@@ -8,19 +8,10 @@ from django.db.utils import OperationalError
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#load environment variables first
-env = environ.Env()
-env.read_env(str(BASE_DIR / '.env'))
 
-# Security & Configuration
 SECRET_KEY = 'django-insecure-ot0bqet2b62$mu(dfb0ogryiqnk@t^#u*+7yb25w4_xrv%v62s'
 
 DEBUG = True
-
-# Stripe Configuration
-STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
-
 
 ALLOWED_HOSTS = []
 
@@ -68,11 +59,23 @@ TEMPLATES = [
     },
 ]
 
+#load environment variables first
+env = environ.Env()
+env.read_env(str(BASE_DIR / '.env'))
+
+# Stripe Configuration
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+FRONTEND_URL = env('FRONTEND_URL') #used for payment redirection
 
 CORS_ALLOWED_ORIGINS = [
-    env("FRONTEND_URL", default="http://localhost:5173"),
+    env.get_value("FRONTEND_URL")
+]
+CSRF_TRUSTED_ORIGINS = [
+    env.get_value("FRONTEND_URL")
 ]
 
+CORS_ALLOW_CREDENTIALS = True
 
 APPEND_SLASH = False
 
@@ -114,14 +117,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+  'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication'
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    )
+        'rest_framework.permissions.AllowAny',   # IMPORTANT for auth endpoints
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ),
 }
 
 SIMPLE_JWT = {
@@ -162,18 +173,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if 'runserver' in sys.argv or 'test' in sys.argv:
     test_database_connection()
-
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
-    ),
-}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

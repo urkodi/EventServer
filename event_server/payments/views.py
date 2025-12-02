@@ -4,8 +4,8 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+import traceback 
 
-# Stripe secret key
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -13,7 +13,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @require_http_methods(["POST"])
 def create_checkout_session(request):
     try:
-        # Parse request body
+        
         data = json.loads(request.body)
         
         # Create Checkout Session 
@@ -30,8 +30,8 @@ def create_checkout_session(request):
             ],
             mode="payment",
             ui_mode="custom",
-            # The URL of payment completion page
-            return_url="https://example.com/return?session_id={CHECKOUT_SESSION_ID}",
+            # payment completion page
+            return_url=f"{settings.FRONTEND_URL}/booking-confirmation?session_id={{CHECKOUT_SESSION_ID}}",
         )
         
         return JsonResponse({
@@ -39,4 +39,5 @@ def create_checkout_session(request):
         })
         
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=403)
+        print(traceback.format_exc())
+        return JsonResponse({'error': str(e)}, status=400)
