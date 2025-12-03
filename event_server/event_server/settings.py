@@ -12,7 +12,7 @@ SECRET_KEY = 'django-insecure-ot0bqet2b62$mu(dfb0ogryiqnk@t^#u*+7yb25w4_xrv%v62s
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,19 +27,26 @@ INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'posts.apps.PostsConfig',
     'geolocation.apps.GeolocationConfig',
+    'rest_framework_simplejwt',
+    'bookmarks.apps.BookmarksConfig',
+    'tickets.apps.TicketsConfig', 
     'corsheaders',
     'rest_framework',
-    'rest_framework_simplejwt'
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'event_server.maintenance.MaintenanceModeMiddleware',
+
 ]
 
 ROOT_URLCONF = 'event_server.urls'
@@ -60,12 +67,10 @@ TEMPLATES = [
 ]
 
 env = environ.Env()
-# Load .env from the project base directory so settings find it regardless
-# of the current working directory when running manage.py
-env.read_env(str(BASE_DIR / '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 CORS_ALLOWED_ORIGINS = [
-    env.get_value("FRONTEND_URL")
+    env("FRONTEND_URL")
 ]
 
 CSRF_TRUSTED_ORIGINS = [

@@ -2,13 +2,14 @@ from django.http import HttpResponse
 import json
 import bcrypt
 
-from rest_framework import status
+from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserSignupSerializer, VerifyEmailSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -20,23 +21,23 @@ def add_cookies(response, user):
     response.set_cookie(
         key="access_token",
         value=str(refresh.access_token),
-        httponly=True,
-        secure=True,         # REQUIRED for SameSite=None
-        samesite="None",     # REQUIRED for cross-origin
-        path="/",            # REQUIRED so everything gets the cookie
-        domain="127.0.0.1",
-        max_age=86400
+        # httponly=True,
+        # secure=True,         # REQUIRED for SameSite=None
+        # samesite="None",     # REQUIRED for cross-origin
+        # path="/",            # REQUIRED so everything gets the cookie
+        # domain="127.0.0.1",
+        max_age=60 * 60
     )
 
     response.set_cookie(
         key="refresh_token",
         value=str(refresh),
-        httponly=True,
-        secure=True,
-        samesite="None",
-        path="/",
-        domain="127.0.0.1",
-        max_age=86400
+        # httponly=True,
+        # secure=True,
+        # samesite="None",
+        # path="/",
+        # domain="127.0.0.1",
+        max_age=60 * 60 * 24 * 7
     )
 
     return response
@@ -48,19 +49,12 @@ def get_user_from_cookie(request):
         raise AuthenticationFailed("No access token found.")
 
     try:
-        decoded = AccessToken(token)  # <--- FIXED
+        decoded = AccessToken(token)
         user_id = decoded["user_id"]
         return user_id
     except Exception:
         raise AuthenticationFailed("Invalid or expired token.")
-    
 
-@api_view(["GET"])
-def debug_cookies(request):
-    print("COOKIES:", request.COOKIES)
-    return Response(request.COOKIES)
-
-from rest_framework.permissions import AllowAny
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_logged_in_user(request):
@@ -68,6 +62,7 @@ def get_logged_in_user(request):
     user = User.objects.get(id=user_id)
     serializer = UserSerializer(user)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 def get_all_users(request):
@@ -86,13 +81,12 @@ def create_user(request):
     - password: str
     - email: str
     """
-    body = request.body.decode("utf-8")
-    body = json.loads(body)
+    body = request.data
 
-    first_name = body["firstName"]
-    last_name = body["lastName"]
-    email = body["email"]
-    password = body["password"]
+    first_name = body.get("first_name")
+    last_name = body.get("last_name")
+    email = body.get("email")
+    password = body.get("password")
 
     email_taken = User.objects.filter(email=email).exists()
     if email_taken:
@@ -189,3 +183,27 @@ def update_user(request):
         return Response(serializer.data, status=200)
 
     return Response(serializer.errors, status=400)
+    # user = User.objects.filter(email = email).first()
+    # if not user: 
+    #     return Response("Incorrect Email or Password", status=status.HTTP_401_UNAUTHORIZED) 
+    #
+    # isPasswordOk = bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8"))
+    # if isPasswordOk:
+    #     if not user.is_verified:  
+    #         return Response("Email not verified yet", status=status.HTTP_403_FORBIDDEN)
+    #     data = UserSerializer(user)
+    #     return Response(data.data, status=status.HTTP_200_OK)
+    # else:
+    #     return Response("Incorrect Email or Password", status=status.HTTP_401_UNAUTHORIZED)
+
+class SignupView(generics.CreateAPIView):
+    serializer_class = UserSignupSerializer
+
+
+class VerifyEmailView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = VerifyEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({"message": "Email verified successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
