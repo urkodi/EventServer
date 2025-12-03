@@ -5,9 +5,8 @@ from .models import Event, EventUsers
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner_id', 'timestamp', 'address')
+    list_display = ('name', 'owner_id', 'address')
     search_fields = ('name', 'address', 'description')
-    list_filter = ('timestamp',)
 
 @admin.register(EventUsers)
 class EventUsersAdmin(admin.ModelAdmin):

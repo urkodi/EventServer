@@ -1,17 +1,31 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import status
+
+from users.authentication import JWTCookieAuthentication
 from .serializers import EventSerializer, EventUsersSerializer
 from .models import Event, EventUsers
 
 @api_view(['POST'])
+@authentication_classes([JWTCookieAuthentication])
+@permission_classes([IsAuthenticated])
 def create_event(request):
-    serializer = EventSerializer(data=request.data, context={"request": request})
+    owner_id = request.user.id
+
+    if owner_id is None:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    data = request.data
+    data["owner"] = owner_id
+
+    serializer = EventSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    print("❌ Serializer errors:", serializer.errors) 
-    return Response(serializer.errors, status=400)
+    print("Serializer errors:", serializer.errors) 
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
