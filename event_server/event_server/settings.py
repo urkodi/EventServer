@@ -8,6 +8,7 @@ from django.db.utils import OperationalError
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 SECRET_KEY = 'django-insecure-ot0bqet2b62$mu(dfb0ogryiqnk@t^#u*+7yb25w4_xrv%v62s'
 
 DEBUG = True
@@ -21,9 +22,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Our Application Apps
+    #Our Apps
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
+    'payments.apps.PaymentsConfig', 
     'reviews.apps.ReviewsConfig',
     'posts.apps.PostsConfig',
     'geolocation.apps.GeolocationConfig',
@@ -66,13 +68,19 @@ TEMPLATES = [
     },
 ]
 
+#load environment variables first
 env = environ.Env()
+env.read_env(str(BASE_DIR / '.env'))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Stripe Configuration
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+FRONTEND_URL = env('FRONTEND_URL') #used for payment redirection
 
 CORS_ALLOWED_ORIGINS = [
     env("FRONTEND_URL")
 ]
-
 CSRF_TRUSTED_ORIGINS = [
     env.get_value("FRONTEND_URL")
 ]
@@ -89,7 +97,7 @@ WSGI_APPLICATION = 'event_server.wsgi.application'
 
 
 DATABASES = {
-    'default':env.db(),
+    'default': env.db(),
 }
 
 def test_database_connection():
@@ -119,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+  'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
@@ -137,9 +145,8 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -158,11 +165,8 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -173,6 +177,7 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

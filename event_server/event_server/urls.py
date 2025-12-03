@@ -13,8 +13,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("users/", include("users.urls")),
     path("events/", include("events.urls")),
+    path("api/payments/", include("payments.urls")),
+    path("posts/", include("posts.urls")), 
     path("reviews/", include("reviews.urls")),
-    path("posts/", include("posts.urls")),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
