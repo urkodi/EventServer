@@ -2,7 +2,7 @@ from django.db import models
 
 class Event(models.Model):
     owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    title = models.CharField(max_length=64)
+    name = models.CharField(max_length=64)
     description = models.TextField(max_length= 2048, default= None, blank= True, null= True)
     category = models.TextField(max_length=80, default=None, blank=True, null=True)
     image_path = models.ImageField(upload_to="event_images/", blank=True, null=True)
@@ -12,9 +12,12 @@ class Event(models.Model):
     ticket_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     max_attendees = models.IntegerField(default=100)
 
+    def __str__(self):
+        return self.name
+
 class EventUsers(models.Model):
-    owner_id = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     rank = models.PositiveSmallIntegerField(default= 0)
 
 class Links(models.Model):
