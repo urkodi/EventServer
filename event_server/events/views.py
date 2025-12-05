@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import status
 
+from django.db.models import Q 
+
 from users.authentication import JWTCookieAuthentication
 from .serializers import EventSerializer, EventUsersSerializer
 from .models import Event, EventUsers
@@ -41,4 +43,24 @@ def list_events_by_owner(request):
     serializer = EventSerializer(events, many=True, context={"request": request})
     return Response(serializer.data)
 
+@api_view(['GET'])
+def search_events(request):
+    events = Event.objects.all()
+    search_query = request.query_params.get('q', None)
+    category = request.query_params.get('category', None)
+    date = request.query_params.get('date', None)
 
+    if search_query:
+        events = events.filter(
+            Q(name__icontains=search_query) |        
+            Q(address__icontains=search_query)       
+        )
+    
+    if category:
+        events = events.filter(category=category)
+    
+    if date:
+        events = events.filter(date=date)
+    
+    serializer = EventSerializer(events, many=True, context={"request": request})
+    return Response(serializer.data)
